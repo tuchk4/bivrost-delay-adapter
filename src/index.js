@@ -1,6 +1,7 @@
 const DEFAULT_OPTIONS = {
   response: 0,
-  request: 0
+  request: 0,
+  error: 0
 };
 
 export default function delayAdapter(adapter, options = {}) {
@@ -9,20 +10,28 @@ export default function delayAdapter(adapter, options = {}) {
     ...options
   };
 
-  const delayProxy = data => {
-    if (delayOptions.response) {
+  const delayProxy = (isError, data) => {
+    let delay = delayOptions.response;
+    if (isError && delayOptions.error) {
+      delay = delayOptions.error;
+    }
+
+    if (delay) {
       return new Promise(resolve => {
         setTimeout(() => {
           resolve(data);
-        }, delayOptions.response);
+        }, delay);
       });
     } else {
       return data;
     }
   };
 
-  return function(...apiArguments) {
-    const api = () => adapter(...apiArguments).then(delayProxy, delayProxy);
+  return function delayApi(...apiArguments) {
+    const api = () => adapter(...apiArguments).then(
+      delayProxy.bind(null, false),
+      delayProxy.bind(null, true)
+    );
 
     if (delayOptions.request) {
       return new Promise(resolve => {
