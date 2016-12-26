@@ -1,6 +1,6 @@
-jest.unmock('../src');
-
 import delayAdapter from '../src';
+
+jest.useFakeTimers();
 
 describe('Delay adapter', () => {
   const resolveAdapter = jest.fn(() => Promise.resolve());
@@ -8,56 +8,61 @@ describe('Delay adapter', () => {
 
   const options = {
     all: {
-      request: 1000,
-      response: 2000,
-      error: 3000
+      request: 100,
+      response: 200,
+      error: 300
     },
     withoutError: {
-      request: 1000,
-      response: 2000
+      request: 100,
+      response: 200
     },
     onlyRequest: {
-      request: 1000
+      request: 100
     }
   };
 
-  it('resolve delay call', (done) => {
+  beforeEach(() => {
+    setTimeout.mockClear();
+  });
+
+  it('resolve delay call', () => {
     const apiOptions = {
       ...options.all
     };
 
     const delayApi = delayAdapter(resolveAdapter, apiOptions);
 
-    delayApi().then(() => {
+    const p = delayApi().then(() => {
       expect(setTimeout.mock.calls.length).toBe(2);
       expect(setTimeout.mock.calls[1][1]).toBe(apiOptions.response);
-      done();
     });
 
     expect(setTimeout.mock.calls.length).toBe(1);
     expect(setTimeout.mock.calls[0][1]).toBe(apiOptions.request);
 
     // run request timer
-    jest.runAllTimers();
+    jest.runOnlyPendingTimers();
 
     setImmediate((() => {
       // run response timer
-      jest.runAllTimers();
+      jest.runOnlyPendingTimers();
     }));
+
+    return p;
   });
 
-  it('reject delay call', (done) => {
+  it('reject delay call', () => {
     const apiOptions = {
       ...options.all
     };
 
     const delayApi = delayAdapter(rejectAdapter, apiOptions);
 
-    delayApi().then(() => {
+    const p = delayApi().then(() => {
       expect(setTimeout.mock.calls.length).toBe(2);
       expect(setTimeout.mock.calls[1][1]).toBe(apiOptions.error);
-      done();
     });
+
 
     expect(setTimeout.mock.calls.length).toBe(1);
     expect(setTimeout.mock.calls[0][1]).toBe(apiOptions.request);
@@ -69,49 +74,53 @@ describe('Delay adapter', () => {
       // run response timer
       jest.runAllTimers();
     }));
+
+    return p;
   });
 
-  it('reject delay call without error timer', (done) => {
+  it('reject delay call without error timer', () => {
     const apiOptions = {
       ...options.withoutError
     };
 
     const delayApi = delayAdapter(rejectAdapter, apiOptions);
 
-    delayApi().then(() => {
+    const p = delayApi().then(() => {
       expect(setTimeout.mock.calls.length).toBe(2);
       expect(setTimeout.mock.calls[1][1]).toBe(apiOptions.response);
-      done();
     });
 
     expect(setTimeout.mock.calls.length).toBe(1);
     expect(setTimeout.mock.calls[0][1]).toBe(apiOptions.request);
 
     // run request timer
-    jest.runAllTimers();
+    jest.runOnlyPendingTimers();
 
     setImmediate((() => {
       // run response timer
-      jest.runAllTimers();
+      jest.runOnlyPendingTimers();
     }));
+
+    return p;
   });
 
-  it('resolve delay call with only request timer', (done) => {
+  it('resolve delay call with only request timer', () => {
     const apiOptions = {
       ...options.onlyRequest
     };
 
     const delayApi = delayAdapter(rejectAdapter, apiOptions);
 
-    delayApi().then(() => {
+    const p = delayApi().then(() => {
       expect(setTimeout.mock.calls.length).toBe(1);
-      done();
     });
 
     expect(setTimeout.mock.calls.length).toBe(1);
     expect(setTimeout.mock.calls[0][1]).toBe(apiOptions.request);
 
     // run request timer
-    jest.runAllTimers();
+    jest.runOnlyPendingTimers();
+
+    return p;
   });
 });

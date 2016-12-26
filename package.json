@@ -11,20 +11,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/frankland/bivrost-delay-adapter.git"
+    "url": "git+https://github.com/tuchk4/bivrost-delay-adapter.git"
   },
   "author": "tuchk4 <valeriy.sorokobatko@gmail.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/frankland/bivrost-delay-adapter/issues"
+    "url": "https://github.com/tuchk4/bivrost-delay-adapter/issues"
   },
-  "homepage": "https://github.com/frankland/bivrost-delay-adapter#readme",
+  "homepage": "https://github.com/tuchk4/bivrost-delay-adapter#readme",
   "devDependencies": {
     "babel-cli": "^6.4.0",
-    "babel-jest": "^11.0.1",
+    "babel-jest": "^18.0.0",
     "babel-polyfill": "^6.7.4",
     "babel-preset-es2015": "^6.3.13",
     "babel-preset-stage-0": "^6.3.13",
-    "jest-cli": "^11.0.2"
+    "jest-cli": "^18.0.0"
   }
 }
